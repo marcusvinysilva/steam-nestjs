@@ -55,8 +55,8 @@ export class User extends BaseEntity {
   @UpdateDateColumn()
   modificadoEm: Date;
 
-  async checkPassword(senha: string): Promise<boolean> {
-    const hash = await bcrypt.hash(senha, this.salt);
-    return hash === this.senha;
+  async checkPassword(password: string): Promise<boolean> {
+    const hash = await bcrypt.hash(password, this.salt);
+    return hash === this.password;
   }
 }
