@@ -25,12 +25,12 @@ import { FindUsersQueryDto } from './dtos/find-users-query.dto';
 import { ApiBody } from '@nestjs/swagger';
 
 @Controller('users')
-// @UseGuards(AuthGuard(), RolesGuard)
+@UseGuards(AuthGuard(), RolesGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post('createAdmin')
-  // @Role(UserRole.ADMIN)
+  @Role(UserRole.ADMIN)
   @ApiBody({ type: CreateUserDto })
   async createAdminUser(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
