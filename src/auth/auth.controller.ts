@@ -15,12 +15,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/users/user.entity';
 import { GetUser } from './get-user.decorator';
 import { ChangePasswordDto } from './change-password.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
+  @ApiBody({ type: CreateUserDto })
   async signUp(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<{ message: string }> {
@@ -31,13 +33,14 @@ export class AuthController {
   }
 
   @Post('signin')
+  @ApiBody({ type: CredentialsDto })
   async singIn(
     @Body(ValidationPipe) credentialsDto: CredentialsDto,
   ): Promise<{ token: string }> {
     return await this.authService.signIn(credentialsDto);
   }
 
-  @Patch(':token')
+  @Patch('confirmEmail/:token')
   async confirmEmail(@Param('token') token: string) {
     await this.authService.confirmEmail(token);
     return { message: 'Email confirmado' };
@@ -54,6 +57,7 @@ export class AuthController {
   }
 
   @Patch('reset-password/:token')
+  @ApiBody({ type: ChangePasswordDto })
   async resetPassword(
     @Param('token') token: string,
     @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
@@ -69,9 +73,4 @@ export class AuthController {
   getMe(@GetUser() user: User): User {
     return user;
   }
-
-  // Fazer
-  // Update do usuário logado
-  // Delete da conta do usuário logado
-  // Buscar outros usuários apenas pelo nome
 }

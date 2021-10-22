@@ -37,13 +37,22 @@ export class UsersService {
     return user;
   }
 
+  async findUsers(
+    queryDto: FindUsersQueryDto,
+  ): Promise<{ users: User[]; total: number }> {
+    const users = await this.userRepository.findUsers(queryDto);
+    return users;
+  }
+
   async updateUser(updateUserDto: UpdateUserDto, id: string): Promise<User> {
     const user = await this.findUserById(id);
 
-    const { name, email, role, status } = updateUserDto;
+    const { name, email, image, bio, role, status } = updateUserDto;
 
     user.name = name ? name : user.name;
     user.email = email ? email : user.email;
+    user.image = image ? image : user.image;
+    user.bio = bio ? bio : user.bio;
     user.role = role ? role : user.role;
     user.status = status ? status : user.status;
 
@@ -65,12 +74,5 @@ export class UsersService {
         'Não foi encontrado um usuário com o ID informado',
       );
     }
-  }
-
-  async findUsers(
-    queryDto: FindUsersQueryDto,
-  ): Promise<{ users: User[]; total: number }> {
-    const users = await this.userRepository.findUsers(queryDto);
-    return users;
   }
 }

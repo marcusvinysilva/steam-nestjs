@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   MinLength,
@@ -7,6 +8,7 @@ import {
 } from 'class-validator';
 
 export class ChangePasswordDto {
+  @ApiProperty()
   @IsNotEmpty({ message: 'Informe uma senha' })
   @MinLength(6, { message: 'A senha deve ter no minimo 6 caracteres' })
   @MaxLength(32, { message: 'A senha deve ter no máximo 32 caracteres' })
@@ -17,6 +19,7 @@ export class ChangePasswordDto {
   })
   password: string;
 
+  @ApiProperty()
   @IsNotEmpty({ message: 'Informe a confirmação de senha' })
   @MinLength(6, {
     message: 'A confirmação de senha deve ter no minimo 6 caracteres',

@@ -17,6 +17,40 @@ export class UserRepository extends Repository<User> {
     return bcrypt.hash(password, salt);
   }
 
+  async createUser(
+    createUserDto: CreateUserDto,
+    role: UserRole,
+  ): Promise<User> {
+    const { email, name, password, birth } = createUserDto;
+
+    const user = this.create();
+
+    user.email = email;
+    user.name = name;
+    user.birth = birth;
+    user.role = role;
+    user.status = true;
+    user.confirmationToken = crypto.randomBytes(32).toString('hex');
+    user.salt = await bcrypt.genSalt();
+    user.password = await this.hashPassword(password, user.salt);
+
+    try {
+      await user.save();
+      delete user.password;
+      delete user.salt;
+      return user;
+    } catch (error) {
+      if (error.code.toString() === '23505') {
+        throw new ConflictException('Endereço de email já está em uso');
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(
+          'Erro ao salvar o usuário no banco de dados',
+        );
+      }
+    }
+  }
+
   async findUsers(
     queryDto: FindUsersQueryDto,
   ): Promise<{ users: User[]; total: number }> {
@@ -43,38 +77,6 @@ export class UserRepository extends Repository<User> {
     const [users, total] = await query.getManyAndCount();
 
     return { users, total };
-  }
-
-  async createUser(
-    createUserDto: CreateUserDto,
-    role: UserRole,
-  ): Promise<User> {
-    const { email, name, password } = createUserDto;
-
-    const user = this.create();
-
-    user.email = email;
-    user.name = name;
-    user.role = role;
-    user.status = true;
-    user.confirmationToken = crypto.randomBytes(32).toString('hex');
-    user.salt = await bcrypt.genSalt();
-    user.password = await this.hashPassword(password, user.salt);
-
-    try {
-      await user.save();
-      delete user.password;
-      delete user.salt;
-      return user;
-    } catch (error) {
-      if (error.code.toString() === '23505') {
-        throw new ConflictException('Endereço de email já está em uso');
-      } else {
-        throw new InternalServerErrorException(
-          'Erro ao salvar o usuário no banco de dados',
-        );
-      }
-    }
   }
 
   async changePassword(id: string, password: string) {
